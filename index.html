@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم امنیتی</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Vazirmatn', monospace;
+            background-color: #000;
+            color: #0f0;
+            overflow: hidden;
+        }
+        
+        .terminal {
+            height: 100vh;
+            width: 100vw;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            overflow-y: auto;
+            background-image: url('https://cdn.jsdelivr.net/gh/iryzhkov/website-files@main/images/noise-texture.png');
+            background-repeat: repeat;
+            background-blend-mode: overlay;
+        }
+        
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 0.75;
+            animation: scanline 6s linear infinite;
+            z-index: 999;
+        }
+        
+        .glitch {
+            animation: glitch 5s infinite;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .flicker {
+            animation: flicker 0.3s infinite;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        .command-input {
+            background: transparent;
+            border: none;
+            color: #0f0;
+            font-family: 'Vazirmatn', monospace;
+            font-size: 1.2rem;
+            caret-color: #0f0;
+            width: 100%;
+            padding: 5px;
+            margin-top: 10px;
+        }
+        
+        .command-input:focus {
+            outline: none;
+        }
+        
+        .output-text {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        #cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: #0f0;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        .glitch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 10, 0, 0.1);
+            pointer-events: none;
+            z-index: 100;
+            animation: glitchOverlay 10s infinite;
+        }
+        
+        .warning {
+            color: #f00;
+            text-shadow: 0 0 5px #f00;
+        }
+        
+        .success {
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+        }
+        
+        .final-message {
+            animation: colorChange 3s infinite;
+            font-size: 2rem;
+            text-align: center;
+            margin-top: 50px;
+            text-shadow: 0 0 10px;
+        }
+        
+        @keyframes scanline {
+            0% {
+                top: 0%;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+        
+        @keyframes flicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 0 #0f0; }
+            1% { text-shadow: -1px 0 0 #f00, 1px 0 0 #0f0; }
+            2% { text-shadow: 1px 0 0 #f00, -1px 0 0 #0f0; }
+            3% { text-shadow: 0 0 0 #0f0; }
+            50% { text-shadow: 0 0 0 #0f0; }
+            51% { text-shadow: -1px 0 0 #f00, 1px 0 0 #0f0; }
+            52% { text-shadow: 1px 0 0 #f00, -1px 0 0 #0f0; }
+            53% { text-shadow: 0 0 0 #0f0; }
+            90% { text-shadow: 0 0 0 #0f0; }
+            91% { text-shadow: -1px 0 0 #f00, 1px 0 0 #0f0; }
+            92% { text-shadow: 1px 0 0 #f00, -1px 0 0 #0f0; }
+            93% { text-shadow: 0 0 0 #0f0; }
+        }
+        
+        @keyframes glitchOverlay {
+            0% { opacity: 0; }
+            5% { opacity: 0.1; }
+            10% { opacity: 0; }
+            15% { opacity: 0; }
+            20% { opacity: 0.1; }
+            25% { opacity: 0; }
+            30% { opacity: 0; }
+            35% { opacity: 0.1; }
+            40% { opacity: 0; }
+            45% { opacity: 0; }
+            50% { opacity: 0.1; }
+            55% { opacity: 0; }
+            60% { opacity: 0; }
+            65% { opacity: 0.1; }
+            70% { opacity: 0; }
+            75% { opacity: 0; }
+            80% { opacity: 0.1; }
+            85% { opacity: 0; }
+            90% { opacity: 0; }
+            95% { opacity: 0.1; }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes colorChange {
+            0% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+            25% { color: #ff00ff; text-shadow: 0 0 10px #ff00ff; }
+            50% { color: #00ffff; text-shadow: 0 0 10px #00ffff; }
+            75% { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+            100% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+        }
+        
+        .birthday-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+        
+        .cake {
+            font-size: 100px;
+            margin-bottom: 30px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body class="bg-black">
+    <div class="glitch-overlay"></div>
+    <div class="scanline"></div>
+    
+    <div class="terminal">
+        <div id="output" class="text-lg"></div>
+        <div id="command-line" class="flex items-center">
+            <span class="text-green-500 ml-2">$</span>
+            <input type="text" id="command-input" class="command-input bg-transparent border-none" autocomplete="off">
+        </div>
+    </div>
+
+    <audio id="typeSound" preload="auto">
+        <source src="https://cdn.jsdelivr.net/gh/iryzhkov/website-files@main/sounds/keyboard-typing.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="errorSound" preload="auto">
+        <source src="https://cdn.jsdelivr.net/gh/iryzhkov/website-files@main/sounds/error-sound.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="successSound" preload="auto">
+        <source src="https://cdn.jsdelivr.net/gh/iryzhkov/website-files@main/sounds/success-sound.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="alarmSound" preload="auto" loop>
+        <source src="https://cdn.jsdelivr.net/gh/iryzhkov/website-files@main/sounds/alarm-sound.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="birthdaySound" preload="auto">
+        <source src="https://cdn.jsdelivr.net/gh/iryzhkov/website-files@main/sounds/birthday-sound.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const output = document.getElementById('output');
+        const commandInput = document.getElementById('command-input');
+        const commandLine = document.getElementById('command-line');
+        const typeSound = document.getElementById('typeSound');
+        const errorSound = document.getElementById('errorSound');
+        const successSound = document.getElementById('successSound');
+        const alarmSound = document.getElementById('alarmSound');
+        const birthdaySound = document.getElementById('birthdaySound');
+        
+        let currentLevel = 0;
+        let typingSpeed = 50;
+        
+        // Define the correct commands for each level
+        const correctCommands = [
+            "شروع",
+            "ورود به سیستم",
+            "دسترسی به فایل‌های مخفی",
+            "رمزگشایی",
+            "دانلود اطلاعات",
+            "اجرای فایل نهایی"
+        ];
+        
+        // Define messages for each level
+        const levelMessages = [
+            "سیستم در حال شناسایی...<br>هشدار: دسترسی غیرمجاز شناسایی شد!<br>ردیابی آدرس IP در حال انجام است...<br>برای ادامه، دستور <span class='text-yellow-300'>شروع</span> را وارد کنید.",
+            
+            "شناسایی آغاز شد.<br>سطح تهدید: متوسط<br>در حال نفوذ به سیستم امنیتی...<br>به فایروال سیستم رسیدیم.<br>برای عبور از فایروال، دستور <span class='text-yellow-300'>ورود به سیستم</span> را وارد کنید.",
+            
+            "<span class='warning'>هشدار! هشدار! هشدار!</span><br>سیستم امنیتی فعال شد!<br>شما تنها ۲ دقیقه فرصت دارید قبل از اینکه موقعیت شما کاملا شناسایی شود.<br>با سرعت بیشتری پیش بروید.<br>برای دسترسی به فایل‌های طبقه‌بندی شده، دستور <span class='text-yellow-300'>دسترسی به فایل‌های مخفی</span> را وارد کنید.",
+            
+            "فایل‌های مخفی پیدا شدند.<br><span class='warning'>خطر: </span>فایل‌ها رمزگذاری شده‌اند.<br>عملیات رمزگشایی باید آغاز شود.<br>برای شروع رمزگشایی، دستور <span class='text-yellow-300'>رمزگشایی</span> را وارد کنید.",
+            
+            "رمزگشایی موفقیت‌آمیز بود.<br>محتوای فایل‌های مخفی در حال بارگیری...<br><span class='warning'>اخطار امنیتی: </span>سیستم‌های ضد هک فعال شده‌اند!<br>زمان کمی باقی مانده است.<br>برای دانلود اطلاعات حیاتی، دستور <span class='text-yellow-300'>دانلود اطلاعات</span> را وارد کنید.",
+            
+            "دانلود اطلاعات با موفقیت انجام شد. <br>یک فایل اجرایی مرموز یافت شد.<br><span class='warning'>هشدار نهایی: </span>اجرای این فایل ممکن است پیامدهای غیرقابل بازگشت داشته باشد.<br>آیا مطمئن هستید که می‌خواهید ادامه دهید؟<br>برای اجرای فایل نهایی، دستور <span class='text-yellow-300'>اجرای فایل نهایی</span> را وارد کنید."
+        ];
+        
+        // Function to type out text with a typing effect
+        function typeText(text, element, speed = typingSpeed, isHTML = false) {
+            return new Promise(resolve => {
+                let i = 0;
+                const newElement = document.createElement('div');
+                newElement.className = 'output-text';
+                element.appendChild(newElement);
+                
+                function type() {
+                    if (i < text.length) {
+                        if (isHTML) {
+                            newElement.innerHTML = text.substring(0, i + 1);
+                        } else {
+                            newElement.textContent += text.charAt(i);
+                        }
+                        i++;
+                        typeSound.currentTime = 0;
+                        typeSound.play();
+                        setTimeout(type, speed);
+                    } else {
+                        resolve();
+                    }
+                }
+                
+                type();
+            });
+        }
+        
+        // Function to handle command input
+        function handleCommand(command) {
+            if (command.toLowerCase() === correctCommands[currentLevel].toLowerCase()) {
+                // Correct command
+                successSound.play();
+                currentLevel++;
+                if (currentLevel < levelMessages.length) {
+                    typeText(levelMessages[currentLevel], output, typingSpeed, true);
+                } else {
+                    // Final level completed - show birthday surprise
+                    showBirthdaySurprise();
+                }
+            } else {
+                // Wrong command
+                errorSound.play();
+                typeText("<span class='warning'>دستور نامعتبر! دوباره تلاش کنید.</span>", output, typingSpeed, true);
+                
+                // After 3 wrong attempts, provide a hint
+                if (Math.random() > 0.7) {
+                    setTimeout(() => {
+                        typeText(`<span class='text-yellow-200'>راهنمایی: دستور صحیح با "${correctCommands[currentLevel].charAt(0)}" شروع می‌شود.</span>`, output, typingSpeed, true);
+                    }, 1000);
+                }
+            }
+        }
+        
+        // Function to show the birthday surprise
+        function showBirthdaySurprise() {
+            alarmSound.pause();
+            commandLine.style.display = 'none';
+            output.innerHTML = '';
+            
+            typeText("<span class='warning flicker text-xl'>هشدار: پروتکل امنیتی نقض شد!</span>", output, 100, true)
+                .then(() => {
+                    return typeText("<span class='warning text-xl'>در حال اجرای پروتکل خودتخریبی...</span>", output, 100, true);
+                })
+                .then(() => {
+                    return new Promise(resolve => setTimeout(resolve, 1500));
+                })
+                .then(() => {
+                    output.innerHTML = '';
+                    return typeText("<span class='flicker text-3xl'>3</span>", output, 100, true);
+                })
+                .then(() => {
+                    return new Promise(resolve => setTimeout(resolve, 1000));
+                })
+                .then(() => {
+                    output.innerHTML = '';
+                    return typeText("<span class='flicker text-3xl'>2</span>", output, 100, true);
+                })
+                .then(() => {
+                    return new Promise(resolve => setTimeout(resolve, 1000));
+                })
+                .then(() => {
+                    output.innerHTML = '';
+                    return typeText("<span class='flicker text-3xl'>1</span>", output, 100, true);
+                })
+                .then(() => {
+                    return new Promise(resolve => setTimeout(resolve, 1000));
+                })
+                .then(() => {
+                    output.innerHTML = '';
+                    birthdaySound.play();
+                    
+                    const birthdayContainer = document.createElement('div');
+                    birthdayContainer.className = 'birthday-container';
+                    
+                    const cakeEmoji = document.createElement('div');
+                    cakeEmoji.className = 'cake';
+                    cakeEmoji.textContent = '☠';
+                    
+                    const message = document.createElement('div');
+                    message.className = 'final-message text-4xl mb-4';
+                    message.innerHTML = "!تولدت مبارک!";
+                    
+                    const subMessage = document.createElement('div');
+                    subMessage.className = 'text-xl mb-8';
+                    subMessage.innerHTML = "تولدت مبارک باشه داداش /n وهاب";
+                    
+                    birthdayContainer.appendChild(cakeEmoji);
+                    birthdayContainer.appendChild(message);
+                    birthdayContainer.appendChild(subMessage);
+                    
+                    output.appendChild(birthdayContainer);
+                });
+        }
+        
+        // Event listener for command input
+        commandInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim();
+                if (command) {
+                    typeText(`$ ${command}`, output);
+                    handleCommand(command);
+                    this.value = '';
+                }
+            }
+        });
+        
+        // Start the experience
+        window.onload = function() {
+            commandInput.focus();
+            typeText(levelMessages[0], output, typingSpeed, true);
+            
+            // Make sure input stays focused
+            document.addEventListener('click', function() {
+                commandInput.focus();
+            });
+        };
+    </script>
+</body>
+</html>
